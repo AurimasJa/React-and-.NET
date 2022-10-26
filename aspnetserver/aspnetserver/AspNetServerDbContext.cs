@@ -1,0 +1,16 @@
+﻿
+using aspnetserver.Data.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace aspnetserver
+{
+    public class AspNetServerDbContext : DbContext
+    {
+        public DbSet<Warehouse> Warehouses { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Server=tcp:battleshipserver.database.windows.net,1433;Initial Catalog=WarehouseDB;Persist Security Info=False;User ID=admin1;Password=Battleship1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        }
+    }
+}
