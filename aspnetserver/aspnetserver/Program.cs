@@ -19,6 +19,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AspNetServerDbContext>();
 builder.Services.AddTransient<IWarehousesRepository, WarehousesRepository>();
+builder.Services.AddTransient<IZonesRepository, ZonesRepository>();
+builder.Services.AddTransient<IItemsRepository, ItemsRepository>();
 
 var app = builder.Build();
 
