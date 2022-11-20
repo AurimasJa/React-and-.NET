@@ -14,9 +14,9 @@ namespace aspnetserver.Repositories
 
     public class ItemsRepository : IItemsRepository
     {
-        private readonly AspNetServerDbContext _aspNetServerDbContext;
+        private readonly WarehouseDbContext _aspNetServerDbContext;
 
-        public ItemsRepository(AspNetServerDbContext aspNetServerDbContext)
+        public ItemsRepository(WarehouseDbContext aspNetServerDbContext)
         {
             _aspNetServerDbContext = aspNetServerDbContext;
         }

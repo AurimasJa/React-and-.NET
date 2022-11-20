@@ -14,9 +14,9 @@ namespace aspnetserver.Repositories
 
     public class ZonesRepository : IZonesRepository
     {
-        private readonly AspNetServerDbContext _aspNetServerDbContext;
+        private readonly WarehouseDbContext _aspNetServerDbContext;
 
-        public ZonesRepository(AspNetServerDbContext aspNetServerDbContext)
+        public ZonesRepository(WarehouseDbContext aspNetServerDbContext)
         {
             _aspNetServerDbContext = aspNetServerDbContext;
         }

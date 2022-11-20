@@ -1,10 +1,11 @@
-﻿
+﻿using aspnetserver.Auth.Model;
 using aspnetserver.Data.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace aspnetserver
 {
-    public class AspNetServerDbContext : DbContext
+    public class WarehouseDbContext : IdentityDbContext<WarehouseRestUser>
     {
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Zone> Zones { get; set; }
