@@ -46,7 +46,7 @@ public class WarehousesController : ControllerBase
 
         var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
         var x = User.IsInRole("Admin");
-        if (authorizationResult.Succeeded)
+        if (!authorizationResult.Succeeded)
         {
             var r = authorizationResult.Failure.FailedRequirements;
             var s = authorizationResult.Failure.FailureReasons;
