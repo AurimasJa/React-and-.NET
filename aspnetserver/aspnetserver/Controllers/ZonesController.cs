@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
+using System.Security.Policy;
+using Zone = aspnetserver.Data.Models.Zone;
 
 namespace aspnetserver.Controllers;
 
@@ -27,15 +30,21 @@ public class ZonesController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
-    public async Task<IEnumerable<ZoneDto>> GetAllAsync(int warehouseId)
+    public async Task<IEnumerable<Zone>> GetAllAsync(int warehouseId)
     {
         var zones = await _zoneRepository.GetManyAsync(warehouseId);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, zones, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Succeeded)
+        //var authorizationResult = await _authorizationService.AuthorizeAsync(User, zones, PolicyNames.ResourceOwner);
+        //if (!authorizationResult.Succeeded)
+        //{
+        //    return null;
+        //}
+        return zones.Select(x => new Zone
         {
-            return null;
-        }
-        return zones.Select(x => new ZoneDto(x.Id, x.Name));
+            Id = x.Id,
+            Name = x.Name,
+            WarehouseId = x.WarehouseId
+        });
+ 
     }
 
     [HttpGet]
@@ -49,15 +58,11 @@ public class ZonesController : ControllerBase
         if (zone == null)
             return NotFound($"Zone {zoneId}id does not exist");
 
-        if (zone == null)
-        {
-            return NotFound($"Zone {zoneId}id does not exist");
-        }
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Succeeded)
-        {
-            return Forbid();
-        }
+        //var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
+        //if (!authorizationResult.Succeeded)
+        //{
+        //    return Forbid();
+        //}
         var dto = new ZoneDto(zone.Id, zone.Name);
         return Ok(dto);
     }
@@ -84,7 +89,13 @@ public class ZonesController : ControllerBase
             await _zoneRepository.CreateAsync(zone);
 
             var dto = new ZoneDto(zone.Id, zone.Name);
-            return Created($"/api/topics/{warehouseId}/posts/{zone.Id}", dto);
+            var dtoToGet = new Zone
+            {
+                Id = zone.Id,
+                Name = zone.Name,
+                WarehouseId = warehouseId,
+            };
+            return Created($"/api/topics/{warehouseId}/posts/{zone.Id}", dtoToGet);
         }
     }
 

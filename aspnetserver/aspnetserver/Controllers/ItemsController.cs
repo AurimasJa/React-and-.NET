@@ -5,6 +5,7 @@ using aspnetserver.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace aspnetserver.Controllers
@@ -29,7 +30,7 @@ public class ItemsController : ControllerBase
 
     [HttpGet]
     [Route("{itemId}")]
-    //[Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<ActionResult<ItemDto>> GetOne(int warehouseId, int zoneId, int itemId)
     {
         var warehouse = await _warehousesRepository.GetAsync(warehouseId);
@@ -47,29 +48,21 @@ public class ItemsController : ControllerBase
         {
             return NotFound($"Item {itemId}id does not exist");
         }
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, item, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Succeeded)
-        {
-            return Forbid();
-        }
+
         var dto = new ItemDto(item.Id, item.Name, item.Description);
         return Ok(dto);
     }
     [HttpGet]
-    //[Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<IEnumerable<ItemDto>> GetAllAsync(int warehouseId, int zoneId)
     {
         var items = await _itemsRepository.GetManyAsync(warehouseId, zoneId);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, items, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Succeeded)
-        {
-            return null;
-        }
+
         return items.Select(x => new ItemDto(x.Id, x.Name, x.Description));
     }
 
     [HttpPost]
-    //[Authorize(Roles = WarehouseRoles.Admin + ", " + WarehouseRoles.Manager)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<ActionResult<ItemDto>> Create(int warehouseId, int zoneId, ItemDto itemDto)
     {
         var warehouse = await _warehousesRepository.GetAsync(warehouseId);
@@ -102,7 +95,7 @@ public class ItemsController : ControllerBase
             var item = new Item
             { Name = itemDto.Name,
             Description = itemDto.Description};
-            //item.UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            item.UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             item.ZoneId = zoneId;
             item.Zone = realZone;
             await _itemsRepository.CreateAsync(item);
@@ -111,7 +104,7 @@ public class ItemsController : ControllerBase
         }
     }
     [HttpPut("{itemId}")]
-    //[Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<ActionResult<ItemDto>> Update(int warehouseId, int zoneId, int itemId, UpdateItemDto itemDto)
     {
         var warehouse = await _warehousesRepository.GetAsync(warehouseId);
@@ -141,11 +134,11 @@ public class ItemsController : ControllerBase
 
         else
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, oldItem, PolicyNames.ResourceOwner);
-            if (!authorizationResult.Succeeded)
-            {
-                return Forbid();
-            }
+            //var authorizationResult = await _authorizationService.AuthorizeAsync(User, oldItem, PolicyNames.ResourceOwner);
+            //if (!authorizationResult.Succeeded)
+            //{
+            //    return Forbid();
+            //}
             //_mapper.Map(itemDto, oldItem);
             oldItem.ZoneId = zoneId;
             oldItem.Name = itemDto.Name is null ? oldItem.Name : itemDto.Name;
@@ -166,7 +159,7 @@ public class ItemsController : ControllerBase
         }
     }
     [HttpDelete("{itemId}")]
-    //[Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<ActionResult> Remove(int warehouseId, int zoneId, int itemId)
     {
         var warehouse = await _warehousesRepository.GetAsync(warehouseId);
@@ -184,11 +177,11 @@ public class ItemsController : ControllerBase
         {
             return NotFound($"Item {itemId}id does not exist");
         }
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, item, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Succeeded)
-        {
-            return Forbid();
-        }
+        //var authorizationResult = await _authorizationService.AuthorizeAsync(User, item, PolicyNames.ResourceOwner);
+        //if (!authorizationResult.Succeeded)
+        //{
+        //    return Forbid();
+        //}
         await _itemsRepository.DeleteAsync(item);
 
         // 204

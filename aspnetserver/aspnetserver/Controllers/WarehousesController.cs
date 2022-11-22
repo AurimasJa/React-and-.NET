@@ -23,7 +23,7 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<IEnumerable<WarehouseDto>> GetMany()
     {
         var warehouses = await _warehousesRepository.GetManyAsync();
@@ -35,7 +35,7 @@ public class WarehousesController : ControllerBase
         return warehouses.Select(x => new WarehouseDto(x.Id, x.Name, x.Description, x.Address, x.CreationDate));
     }
     [HttpGet("{warehouseId}", Name = "GetWarehouse")]
-    [Authorize(Roles = WarehouseRoles.Admin)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager + "," + WarehouseRoles.Worker)]
     public async Task<ActionResult<Warehouse>> Get(int warehouseId)
     {
         var warehouse = await _warehousesRepository.GetAsync(warehouseId);
@@ -44,14 +44,14 @@ public class WarehousesController : ControllerBase
         if (warehouse == null)
             return NotFound($"Couldn't find a warehouse with id of {warehouseId}"); ;
 
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
-        var x = User.IsInRole("Admin");
-        if (!authorizationResult.Succeeded)
-        {
-            var r = authorizationResult.Failure.FailedRequirements;
-            var s = authorizationResult.Failure.FailureReasons;
-            return Forbid();
-        }
+        //var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
+        //var x = User.IsInRole("Admin");
+        //if (!authorizationResult.Succeeded)
+        //{
+        //    //var r = authorizationResult.Failure.FailedRequirements;
+        //    //var s = authorizationResult.Failure.FailureReasons;
+        //    return Forbid();
+        //}
 
         // var warehouse1 = new Warehouse(warehouse.Id, warehouse.Name, warehouse.Description, warehouse.Address, warehouse.CreationDate);
         return new Warehouse
@@ -66,7 +66,7 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin)]
     public async Task<ActionResult<Warehouse>> Create(CreateWarehouseDto createWarehouseDto)
     {
 
@@ -109,7 +109,7 @@ public class WarehousesController : ControllerBase
 
     // api/topics
     [HttpPut]
-    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Worker)]
+    [Authorize(Roles = WarehouseRoles.Admin + "," + WarehouseRoles.Manager)]
     [Route("{warehouseId}")]
     public async Task<ActionResult<WarehouseDto>> Update(int warehouseId, UpdateWarehouseDto updateWarehouseDto)
     {
@@ -132,7 +132,6 @@ public class WarehousesController : ControllerBase
         {
 
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, warehouse, PolicyNames.ResourceOwner);
-            var x = true;
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
